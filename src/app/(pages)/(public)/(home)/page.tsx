@@ -1,39 +1,32 @@
-import React from 'react';
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
-const HomePage = () => {
+export default function Page() {
   return (
-    <div className="flex h-full">
-      {/* Lista de Chats */}
-      <div className="flex-1 overflow-y-auto pr-4">
-        <ul>
-          {/* Ejemplo de un item de chat */}
-          <li className="bg-white rounded-md shadow-sm p-3 mb-2 cursor-pointer hover:bg-gray-200">
-            {/* ... Contenido del item de chat */}
-          </li>
-          {/* ... Más items de chat */}
-        </ul>
-      </div>
-
-      {/* Panel de Chat */}
-      <div className="w-96 bg-white shadow-md flex flex-col justify-between">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-semibold">Chat</h2>
-          {/* Información del contacto seleccionado aquí */}
-        </div>
-        <div className="overflow-y-auto p-4">
-          {/* Área de mensajes del chat */}
-          <div className="mb-2">
-            {/* ... Mensajes */}
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6">                
+              </div>              
+            </div>
           </div>
         </div>
-        <div className="p-4 border-t">
-          <div className="flex items-center">
-            {/* ... Input de mensaje y botón de enviar */}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default HomePage;
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
