@@ -1,10 +1,3 @@
-import './globals.css';
-
-export const metadata = {
-  title: 'Chat Agent',
-  description: 'Create AI Chat Agents',
-}
-
 export default function RootLayout({
   children,
 }: Readonly <{
@@ -19,4 +12,3 @@ export default function RootLayout({
   </html>
   )
 }
-
