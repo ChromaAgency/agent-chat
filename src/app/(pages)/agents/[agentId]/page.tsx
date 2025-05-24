@@ -1,6 +1,6 @@
 import AgentForm from "@/components/agent-form";
 
-export default async function Page({params}:{params:{agentId:string}}) {
+export default async function Page({params}:{params:Promise<{agentId:string}>}) {
     const {agentId} = await params;
     return (
       <>

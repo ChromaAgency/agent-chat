@@ -197,8 +197,8 @@ export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmi
                                 </form.Field>
                             </div>
             <form.Subscribe
-                selector={(state) => state.values.advancedMode}
-                children={(advancedMode) => (
+                selector={(state) => state.values.advancedMode}>
+                {(advancedMode) => (
                     advancedMode ? <>
                         <div className="space-y-2">
                             <form.Field
@@ -363,7 +363,7 @@ export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmi
                         </>
 
                 )}
-            />
+            </form.Subscribe>
             <div className="flex justify-end">
                 <button
                     type="submit"

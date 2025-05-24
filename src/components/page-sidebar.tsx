@@ -2,8 +2,7 @@
 
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { SidebarGroupContent } from "./ui/sidebar";
-import { CoinsIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import * as React from "react"
 
@@ -106,7 +105,7 @@ function ChatsSideGroupContent({data}:{data: Chat[]}) {
 function PageSidebar() {
     
     const pathname = usePathname()
-    const [e,page, ...rest] = pathname.split('/')
+    const [,page, ] = pathname.split('/')
     const {isLoading, data:mails, isError } = usePageSidebar({page});
     if (isError || !pageRouteMap[page]) return null
     return <Sidebar collapsible="none" className="hidden md:flex">
