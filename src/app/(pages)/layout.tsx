@@ -6,23 +6,20 @@ export const metadata = {
 }
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { headers} from 'next/headers';
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import PageSidebar from '@/components/page-sidebar';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default  async function Layout({ children }: { children: React.ReactNode }) {
+
   return (
-      
-    <SidebarProvider
-    style={
-      {
-        "--sidebar-width": "calc(var(--spacing) * 125)",
-        "--header-height": "calc(var(--spacing) * 12)",
-      } as React.CSSProperties
-    }
-  >
-    <AppSidebar variant="inset" />
+    <SidebarProvider>
+    <AppSidebar />
+    <PageSidebar/>
+
     <SidebarInset>
       <SiteHeader /> 
       <main className="h-full w-full">
@@ -30,6 +27,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </main>
       </SidebarInset>
      </SidebarProvider>
-  )
+    )
 }
 

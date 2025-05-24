@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card'; // Opcional, para la tarjeta de usuario
 import { Separator } from '@/components/ui/separator'; // Opcional, para la separación visual
+import PageSidebar from '@/components/page-sidebar';
 
 
 // --- Componentes Reutilizables (podrían ir en src/app/chat/components/) ---
@@ -97,7 +98,6 @@ export default function HomePage() {
 
   return (
     <div className="flex h-full">
-
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <SheetContent side="left" className="w-80 sm:w-96 p-4">
           <SheetHeader>
