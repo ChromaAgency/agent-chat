@@ -55,19 +55,8 @@ export function NewAgentForm() {
 
     const { mutate ,error,isError} = useMutation({
         mutationFn: async (data: AgentFormData) => {
-            // WIP Should call agents api
-            // We should use supabase for auth and db.
-            //   const response = await fetch('/api/agents', {
-            //     method: 'POST',
-            //     headers: {
-            //       'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(data),
-            //   })
-            //   if (!response.ok) {
-            //     throw new Error('Failed to create agent')
-            //   }
-            //   return response.json()
+           addNewAgent(data) // mapear el formulario a lo que la api necesita y ahi le hago POST a la api
+           
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['agents'] })
@@ -111,6 +100,7 @@ export function UpdateAgentForm({ agentId }: { agentId: string }) {
         <AgentFormComponent onSubmit={onSubmit} defaultValues={data} error={error?.message || null} />
     )
 }
+
 
 export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmit: any, defaultValues: AgentFormData, error: string | null }) {
     const form = useForm({

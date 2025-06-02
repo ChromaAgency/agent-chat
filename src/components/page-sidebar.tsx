@@ -16,9 +16,10 @@ import {
   SidebarGroup,
 } from "@/components/ui/sidebar"
 import Link from "next/link";
-const pageRouteMap: Record<string, string> = {
+import { getAgents } from "@/services/agentService";
+const pageRouteMap: Record<string, ()=>Promise<any[]>> = {  
     "chats": "/chats",
-    "agents": "/agents",
+    "agents": getAgents,
 }
 type Agent = {
     id:string;
@@ -38,16 +39,10 @@ teaser:string;
 function usePageSidebar({page}:{page: string}) {
     
     return useQuery({
-        queryKey: [page],
-        queryFn: () => {
-            if (!pageRouteMap[page] ) {
-                throw new Error("Invalid page")
-            }
-            return fetch("/api" + pageRouteMap[page])
-                .then((res) => res.json())
-                .then((data) => {
-                    return data.result})
-        },
+        queryKey: [page], // query key (agents) indica si react query tiene que volver a hacer la funcion o no 
+        queryFn: async (s) => {
+            return await pageRouteMap[page]();
+        }
     });
 
 }

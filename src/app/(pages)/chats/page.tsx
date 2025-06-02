@@ -1,4 +1,3 @@
-// src/app/(main)/page.tsx
 'use client'; // Esto es importante para usar hooks de React como useState
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -7,14 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card } from '@/components/ui/card'; // Opcional, para la tarjeta de usuario
-import { Separator } from '@/components/ui/separator'; // Opcional, para la separación visual
+import { Card } from '@/components/ui/card'; 
+import { Separator } from '@/components/ui/separator'; 
 import PageSidebar from '@/components/page-sidebar';
 
-
-// --- Componentes Reutilizables (podrían ir en src/app/chat/components/) ---
-
-// src/app/chat/components/ChatBubble.tsx
 interface ChatBubbleProps {
   message: string;
   isUser: boolean;
@@ -38,7 +33,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isUser, time }) => {
   );
 };
 
-// src/app/chat/components/MessageList.tsx
 interface Message {
   id: string;
   text: string;

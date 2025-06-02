@@ -1706,6 +1706,11 @@ color@^4.2.3:
     color-convert "^2.0.1"
     color-string "^1.9.0"
 
+combobox@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/combobox/-/combobox-1.0.1.tgz#c2ad131af5207704b9c6d1dfeabc7777c377fe83"
+  integrity sha512-LyU03k3AwIe6JzfYD0cMHIJ6iNYAmeARJ7HoVQ4KV3FNcNDmf/UnMXMc9EU1lHawUxavcSuAMg5QEZNRAvT+tg==
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
