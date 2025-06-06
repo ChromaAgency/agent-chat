@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/sidebar"
 import PageSidebar from "./page-sidebar"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 const data = {
   user: {
@@ -159,6 +160,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
   return (
     
     <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row ">

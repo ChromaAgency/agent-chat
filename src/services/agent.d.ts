@@ -22,9 +22,12 @@ type Agent = {
     id:string;
 } & NewAgent 
 
-type ApiAgent = {
-    id:string;
+
+type NewApiAgent = {
     name:string;
     prompt:string;
     tools:string[];
 }
+type ApiAgent = {
+    id:string;
+} & NewApiAgent

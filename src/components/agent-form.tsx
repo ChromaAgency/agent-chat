@@ -107,11 +107,12 @@ const labels = {
     integrations: 'Integrations',
     advancedMode: 'Advanced Mode'
 }
+export const queryClient = new QueryClient()
 export default function AgentFormWrapper({
     agentId = null,
 }: { agentId?: null | string }) {
     return (
-        <QueryClientProvider client={new QueryClient()}>
+        <QueryClientProvider client={queryClient}>
             {agentId ? <UpdateAgentForm agentId={agentId} /> : <NewAgentForm />}
         </QueryClientProvider>
     )
@@ -132,7 +133,7 @@ const defaultValues: AgentFormData = {
 export function NewAgentForm() {
     const queryClient = useQueryClient()
     const { mutate , error, isError, isPending } = useMutation({mutationFn: async (data: AgentFormData) => {
-           addNewAgent({name:"Dylan",prompt:"Hola",integrations:[]})
+           addNewAgent({name:data.name, prompt:data.prompt, integrations:["https://quantum-agents-api.quantumcorp.com.mx/api/tools/1/"]})
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['agents'] })
@@ -153,17 +154,23 @@ export function UpdateAgentForm({ agentId }: { agentId: string }) {
     const {data, isLoading: isFetchingAgent } = useQuery<AgentFormData, Error>({
         queryKey: ['agents', agentId], 
         queryFn: async () => {
-           await getAgentById(agentId)
+           return await getAgentById(agentId)
         },
     });
 
     const { mutate, isError, error, isPending } = useMutation({
+        mutationKey: ['agents', agentId],
         mutationFn: async (data: AgentFormData) => {
-            updateAgent({id:agentId,name:"Carlos",prompt:"Hola",integrations:[]})
+            return updateAgent({id:agentId,name:data.name,prompt:data.prompt,integrations:["http://localhost:8000/api/tools/1/"]})
         },
         onError: (error) => {
             console.error('onError', error)
-        }
+        },
+        onSuccess: (data, variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ['agents'] })
+            queryClient.invalidateQueries({ queryKey: ['agents', data.id] })
+            console.log('onSuccess')
+        },
 
     })
     const onSubmit = async ({ value }: { value: AgentFormData }) => {
