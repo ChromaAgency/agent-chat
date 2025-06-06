@@ -1,9 +1,88 @@
 "use client"
-import { FieldApi, ReactFormApi, useForm } from '@tanstack/react-form'
+import { FieldApi, FormApi, ReactFormApi, useForm } from '@tanstack/react-form'
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Checkbox } from './ui/checkbox'
+import { addNewAgent, updateAgent, getAgentById } from '@/services/agentService'; 
+
+function TanstackTextareaField({ form, name, label }: { form: any, name: string, label: string }) {
+    return <form.Field name={name} >
+        {(field: any) => <TanstackFormTextarea label={label} value={form.getFieldValue(field.name) as string} field={field} />}
+    </form.Field>
+}
+type TanstackFormTextareaProps = {
+    field: any,
+    label: string,
+    value: string
+}
+function TanstackFormTextarea({ field, label, value }: TanstackFormTextareaProps) {
+    return <>
+        <label
+            htmlFor={field.name}
+            className="block text-sm font-medium text-gray-700"
+        >
+            {label}
+        </label>
+        <textarea
+            id={field.name}
+            defaultValue={value}
+            onChange={e => {
+                console.log(e.target.value)
+                field.handleChange(e.target.value)}}
+            rows={4}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+    </>
+}
+
+function TanstackFormCheckboxField({ form, name, label }: { form: any, name: string, label: string }) {
+    return <form.Field name={name} >
+        {(field: any) => <TanstackFormCheckbox label={label} value={form.getFieldValue(field.name) as boolean} field={field} />}
+    </form.Field>
+}
+type TanstackFormCheckboxProps = {
+    field: any,
+    label: string,
+    value: boolean
+}
+function TanstackFormCheckbox({ label, value, field }: TanstackFormCheckboxProps) {
+    return <div className='flex flex-row space-x-3 items-center'>
+        <label
+            htmlFor={field.name}
+            className="block text-sm font-medium text-gray-700"
+        >
+            {label}
+        </label>
+        <Checkbox defaultChecked={value} name={field.name} onCheckedChange={(e) => {
+            field.handleChange(e as boolean)
+        }} />
+    </div>
+}
+
+function TanstackFormInputField({ form, name, label }: { form: any, name: string, label: string }) {
+    return <form.Field name={name} >
+        {(field: any) => <TanstackFormInput label={label} value={form.getFieldValue(field.name) as string} field={field} />}
+    </form.Field>
+
+}
+
+type TanstackFormInputProps = {
+    field: any,
+    label: string,
+    value: string
+}
+function TanstackFormInput({ field, label, value }: TanstackFormInputProps) {
+    return <>
+        <label
+            htmlFor={field.name}
+            className="block text-sm font-medium text-gray-700"
+        >
+            {label}
+        </label>
+        <Input defaultValue={value} name={field.name} onChange={(e) => field.handleChange(e.target.value)} />
+    </>
+}
 
 interface AgentFormData {
     name: string
@@ -28,11 +107,12 @@ const labels = {
     integrations: 'Integrations',
     advancedMode: 'Advanced Mode'
 }
+export const queryClient = new QueryClient()
 export default function AgentFormWrapper({
     agentId = null,
 }: { agentId?: null | string }) {
     return (
-        <QueryClientProvider client={new QueryClient()}>
+        <QueryClientProvider client={queryClient}>
             {agentId ? <UpdateAgentForm agentId={agentId} /> : <NewAgentForm />}
         </QueryClientProvider>
     )
@@ -52,77 +132,68 @@ const defaultValues: AgentFormData = {
 }
 export function NewAgentForm() {
     const queryClient = useQueryClient()
-
-    const { mutate ,error,isError} = useMutation({
-        mutationFn: async (data: AgentFormData) => {
-            // WIP Should call agents api
-            // We should use supabase for auth and db.
-            //   const response = await fetch('/api/agents', {
-            //     method: 'POST',
-            //     headers: {
-            //       'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(data),
-            //   })
-            //   if (!response.ok) {
-            //     throw new Error('Failed to create agent')
-            //   }
-            //   return response.json()
+    const { mutate , error, isError, isPending } = useMutation({mutationFn: async (data: AgentFormData) => {
+           addNewAgent({name:data.name, prompt:data.prompt, integrations:["https://quantum-agents-api.quantumcorp.com.mx/api/tools/1/"]})
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['agents'] })
+            console.log('onSuccess')
+        },
+        onError: (error) => {
+            console.error('onError', error)
+        }
+    })
+    const onSubmit = async ({ value }: { value: AgentFormData }) => {
+        mutate(value)
+    }
+    return (
+        <AgentFormComponent isLoading={isPending} defaultValues={defaultValues} onSubmit={onSubmit} error={error?.message || null} />
+    )
+}
+export function UpdateAgentForm({ agentId }: { agentId: string }) {
+    const {data, isLoading: isFetchingAgent } = useQuery<AgentFormData, Error>({
+        queryKey: ['agents', agentId], 
+        queryFn: async () => {
+           return await getAgentById(agentId)
+        },
+    });
 
+    const { mutate, isError, error, isPending } = useMutation({
+        mutationKey: ['agents', agentId],
+        mutationFn: async (data: AgentFormData) => {
+            return updateAgent({id:agentId,name:data.name,prompt:data.prompt,integrations:["http://localhost:8000/api/tools/1/"]})
+        },
+        onError: (error) => {
+            console.error('onError', error)
+        },
+        onSuccess: (data, variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ['agents'] })
+            queryClient.invalidateQueries({ queryKey: ['agents', data.id] })
+            console.log('onSuccess')
         },
 
     })
-
-    const onSubmit = async ({ value }: { value: AgentFormData }) => {
-        console.log('onSubmit', value)
-        mutate(value)
-    }
-
-    return (
-        <AgentFormComponent defaultValues={defaultValues} onSubmit={onSubmit} error={error?.message || null} />
-    )
-
-}
-export function UpdateAgentForm({ agentId }: { agentId: string }) {
-    const {data } = useQuery({queryFn:async (query)=>{
-        return await fetch(`/api/agents/${query.queryKey[1]}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('data', data)
-                return data.result
-            })
-    },  queryKey: ['agents', agentId]})
-    const { mutate, isError, error } = useMutation({
-        mutationFn: async (data: AgentFormData) => {
-
-        }
-    })
-
     const onSubmit = async ({ value }: { value: AgentFormData }) => {
         mutate(value)
     }
-    console.log('data', data)
+    // Muestra un estado de carga mientras se obtiene el agente
+    if (isFetchingAgent) return <p>Cargando datos del agente...</p>; 
 
+    // Si defaultValues (data) aún no está cargado, puedes mostrar un loader o null
+    // para evitar errores si AgentFormComponent espera defaultValues definidos.
+    if (!data) return <p>Cargando formulario...</p>; 
 
     return (
-        <AgentFormComponent onSubmit={onSubmit} defaultValues={data} error={error?.message || null} />
+        <AgentFormComponent isLoading={isPending} onSubmit={onSubmit} defaultValues={data} error={error?.message || null} />
     )
 }
-
-export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmit: any, defaultValues: AgentFormData, error: string | null }) {
+export function AgentFormComponent({ onSubmit, defaultValues, error,isLoading }: {isLoading:boolean, onSubmit: any, defaultValues: AgentFormData, error: string | null }) {
     const form = useForm({
         defaultValues,
-        onSubmit,
+        onSubmit: ({ value }) => onSubmit({ value }),
+
     })
-    useEffect(() => {
-        return () => {
-            console.log('unmount');
-            form.reset()
-        }
-    })
+
     return (
         <form
             onSubmit={(e) => {
@@ -136,234 +207,43 @@ export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmi
                 <div className="bg-red-50 text-red-500 p-3 rounded-md">{error}</div>
             )}
             <div className="space-y-2">
-                <form.Field
-                    name="name"
-
-                >
-                    {(field) => (
-                        <>
-                            <label
-                                htmlFor={field.name}
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                {labels[field.name]}
-                            </label>
-                            <Input defaultValue={form.getFieldValue(field.name) as string} name={field.name} onChange={(e) => field.handleChange(e.target.value)} />
-                        </>
-                    )}
-                </form.Field>
+                <TanstackFormInputField label={labels["name"]} name='name' form={form} />
             </div>
             <div className="space-y-2">
-                <form.Field
-                    name="advancedMode"
-                >
-                    {(field) => (
-                        <div className='flex flex-row space-x-3 items-center'>
-                            <label
-                                htmlFor={field.name}
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                {labels[field.name]}
-                            </label>
-                            <Checkbox defaultChecked={form.getFieldValue(field.name) as boolean} name={field.name} onCheckedChange={(e) => {
-                                field.handleChange(e as boolean)
-                            }} />
-                        </div>
-                    )}
-                </form.Field>
+                <TanstackFormCheckboxField label={labels["advancedMode"]} name='advancedMode' form={form} />
             </div>
             <div className="space-y-2">
-                                <form.Field
-                                    name="description"
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-
-                                            <textarea
-                                                id={field.name}
-                                                defaultValue={form.getFieldValue(field.name) as string}
-                                                onChange={e => field.handleChange(e.target.value)}
-                                                rows={4}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </>
-                                    )}
-                                </form.Field>
-                            </div>
+                <TanstackTextareaField label={labels["description"]} name='description' form={form} />
+            </div>
             <form.Subscribe
                 selector={(state) => state.values.advancedMode}>
                 {(advancedMode) => (
                     advancedMode ? <>
                         <div className="space-y-2">
-                            <form.Field
-                                name="prompt"
-                            >
-                                {(field) => (
-                                    <>
-                                        <label
-                                            htmlFor={field.name}
-                                            className="block text-sm font-medium text-gray-700"
-                                        >
-                                            {labels[field.name]}
-                                        </label>
-
-                                        <textarea
-                                            id={field.name}
-                                            defaultValue={form.getFieldValue(field.name) as string}
-                                            onChange={e => field.handleChange(e.target.value)}
-                                            rows={4}
-                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        />
-                                    </>
-                                )}
-                            </form.Field>
-                        </div>
-                        <div className="space-y-2">
-                            <form.Field
-                                name="integrations"
-
-                            >
-                                {(field) => (
-                                    <>
-                                        <label
-                                            htmlFor={field.name}
-                                            className="block text-sm font-medium text-gray-700"
-                                        >
-                                            {labels[field.name]}
-                                        </label>
-                                        <Input defaultValue={form.getFieldValue(field.name) as string} name={field.name} onChange={(e) => field.handleChange(e.target.value)} />
-                                    </>
-                                )}
-                            </form.Field>
+                            <TanstackTextareaField label={labels["prompt"]} name='prompt' form={form} />
                         </div>
 
                     </>
                         : <>
-                           
                             <div className="space-y-2">
-                                <form.Field
-                                    name="role"
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-
-                                            <textarea
-                                            defaultValue={form.getFieldValue(field.name) as string}
-                                                id={field.name}
-                                                onChange={e => field.handleChange(e.target.value)}
-                                                rows={4}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </>
-                                    )}
-                                </form.Field>
+                                <TanstackTextareaField label={labels["role"]} name='role' form={form} />
                             </div>
                             <div className="space-y-2">
-                                <form.Field
-                                    name="skills"
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-
-                                            <textarea
-                                            defaultValue={form.getFieldValue(field.name) as string}
-                                                id={field.name}
-                                                onChange={e => field.handleChange(e.target.value)}
-                                                rows={4}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </>
-                                    )}
-                                </form.Field>
+                                <TanstackTextareaField label={labels["skills"]} name='skills' form={form} />
                             </div>
                             <div className="space-y-2">
-                                <form.Field
-                                    name="examples"
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-
-                                            <textarea
-                                            defaultValue={form.getFieldValue(field.name) as string}
-                                                id={field.name}
-                                                onChange={e => field.handleChange(e.target.value)}
-                                                rows={4}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </>
-                                    )}
-                                </form.Field>
+                                <TanstackTextareaField label={labels["examples"]} name='examples' form={form} />
                             </div>
                             <div className="space-y-2">
-                                <form.Field
-                                    name="output"
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-
-                                            <textarea
-                                            defaultValue={form.getFieldValue(field.name) as string}
-                                                id={field.name}
-                                                onChange={e => field.handleChange(e.target.value)}
-                                                rows={4}
-                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </>
-                                    )}
-                                </form.Field>
-                            </div>
-                            <div className="space-y-2">
-                                <form.Field
-                                    name="integrations"
-
-                                >
-                                    {(field) => (
-                                        <>
-                                            <label
-                                                htmlFor={field.name}
-                                                className="block text-sm font-medium text-gray-700"
-                                            >
-                                                {labels[field.name]}
-                                            </label>
-                                            <Input defaultValue={form.getFieldValue(field.name) as string} name={field.name} onChange={(e) => field.handleChange(e.target.value)} />
-                                        </>
-                                    )}
-                                </form.Field>
+                                <TanstackTextareaField label={labels["output"]} name='output' form={form} />
                             </div>
                         </>
 
                 )}
             </form.Subscribe>
+            <div className="space-y-2">
+                <TanstackFormInputField label={labels["integrations"]} name='integrations' form={form} />
+            </div>
             <div className="flex justify-end">
                 <button
                     type="submit"
