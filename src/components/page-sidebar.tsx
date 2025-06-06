@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import { getAgents } from "@/services/agentService";
+import { queryClient } from "./agent-form";
 const pageRouteMap: Record<string, ()=>Promise<any[]>> = {  
     "chats": "/chats",
     "agents": getAgents,
@@ -46,7 +47,6 @@ function usePageSidebar({page}:{page: string}) {
     });
 
 }
-const queryClient = new QueryClient();
 export default function PageSidebarWrapper() {
 
     return <QueryClientProvider client={queryClient}>

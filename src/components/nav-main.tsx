@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { usePathname } from "next/navigation"
 
 export function NavMain({
   items,
@@ -22,6 +23,8 @@ export function NavMain({
     icon?: Icon
   }[]
 }) {
+  const pathname = usePathname()
+  const [,page, ] = pathname.split('/')
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -46,18 +49,10 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Los ítems principales del menú */}
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              {/*
-                Aquí es donde haces el cambio clave:
-                1. Añades asChild a SidebarMenuButton.
-                2. El hijo de SidebarMenuButton es un componente Link de next/link.
-                3. El href del Link es item.url.
-                4. Dentro del Link, colocas el contenido visual del botón (icono y texto).
-              */}
-              <SidebarMenuButton tooltip={item.title} asChild>
+            <SidebarMenuItem key={item.title} >
+              <SidebarMenuButton tooltip={item.title} isActive={`/${page}` === item.url} asChild >
                 <Link href={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

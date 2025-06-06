@@ -6,3 +6,11 @@ export function mapAgent(agent:ApiAgent):Agent {
         integrations:agent.tools,
     }
 }
+
+export function mapApiAgent(agent:NewAgent):NewApiAgent {
+    return {
+        name:agent.name,
+        prompt:agent.prompt,
+        tools:agent.integrations || [],
+    }
+}
