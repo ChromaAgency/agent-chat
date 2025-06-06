@@ -9,6 +9,37 @@ export async function getAgents() : Promise<Agent[]> {
     const agents:ApiResult<ApiAgent> = await agentsResp.json()
     const  agentResult = agents.results;
     return agentResult.map(mapAgent)
+
     
-    
+}
+export async function getAgentById(agentId: string) : Promise<Agent> {
+    const agentResp = await fetch(`https://quantum-agents-api.quantumcorp.com.mx/api/agents/${agentId}`, {method:'GET'});
+    if(agentResp && !agentResp.ok) {
+        if (agentResp.status === 404) {
+            throw new Error('Agente no encontrado');
+        }
+        throw new Error('Error al obtener el Id del Agente, contacte un administrador');
+        console.log(agentResp);
+    }
+    const agent: ApiAgent = await agentResp.json();
+    return mapAgent(agent);
+}
+
+export async function addNewAgent(agent:NewAgent) : Promise<Agent> {
+
+    const agentsResp = await fetch('https://quantum-agents-api.quantumcorp.com.mx/api/agents',{method:'POST',body:JSON.stringify(agent),headers: {'Content-Type':'application/json'}})
+    if(agentsResp && !agentsResp.ok) {
+        throw new Error('Error al crear Agente, contacte un administrador')
+    }
+    const agents:ApiAgent = await agentsResp.json()
+    return  mapAgent(agents);
+
+}
+export async function updateAgent(agent:Agent) : Promise<Agent> {
+    const agentsResp = await fetch(`https://quantum-agents-api.quantumcorp.com.mx/api/agents/${agent.id}`,{method:'PUT',body:JSON.stringify(agent),headers: {'Content-Type':'application/json'}})
+    if(agentsResp && !agentsResp.ok) {
+        throw new Error('Error al actualizar Agente, contacte un administrador')
+    }
+    const agents:ApiAgent = await agentsResp.json()
+    return  mapAgent(agents);
 }

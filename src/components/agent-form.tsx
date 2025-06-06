@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient
 import { ReactNode, useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Checkbox } from './ui/checkbox'
+import { addNewAgent, updateAgent, getAgentById } from '@/services/agentService'; 
 
 function TanstackTextareaField({ form, name, label }: { form: any, name: string, label: string }) {
     return <form.Field name={name} >
@@ -130,57 +131,56 @@ const defaultValues: AgentFormData = {
 }
 export function NewAgentForm() {
     const queryClient = useQueryClient()
-
-    const { mutate, error, isError } = useMutation({
-        mutationFn: async (data: AgentFormData) => {
-
+    const { mutate , error, isError, isPending } = useMutation({mutationFn: async (data: AgentFormData) => {
+           addNewAgent({name:"Dylan",prompt:"Hola",integrations:[]})
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['agents'] })
-
+            console.log('onSuccess')
         },
-
-    })
-
-    const onSubmit = async ({ value }: { value: AgentFormData }) => {
-        console.log('onSubmit', value)
-        mutate(value)
-    }
-
-    return (
-        <AgentFormComponent defaultValues={defaultValues} onSubmit={onSubmit} error={error?.message || null} />
-    )
-
-}
-export function UpdateAgentForm({ agentId }: { agentId: string }) {
-    const { data } = useQuery({
-        queryFn: async (query) => {
-            return await fetch(`/api/agents/${query.queryKey[1]}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('data', data)
-                    return data.result
-                })
-        }, queryKey: ['agents', agentId]
-    })
-    const { mutate, isError, error } = useMutation({
-        mutationFn: async (data: AgentFormData) => {
-            console.log('onSubmit', data)
+        onError: (error) => {
+            console.error('onError', error)
         }
     })
-
     const onSubmit = async ({ value }: { value: AgentFormData }) => {
         mutate(value)
     }
-
-
     return (
-        <AgentFormComponent onSubmit={onSubmit} defaultValues={data} error={error?.message || null} />
+        <AgentFormComponent isLoading={isPending} defaultValues={defaultValues} onSubmit={onSubmit} error={error?.message || null} />
     )
 }
+export function UpdateAgentForm({ agentId }: { agentId: string }) {
+    const {data, isLoading: isFetchingAgent } = useQuery<AgentFormData, Error>({
+        queryKey: ['agents', agentId], 
+        queryFn: async () => {
+           await getAgentById(agentId)
+        },
+    });
 
+    const { mutate, isError, error, isPending } = useMutation({
+        mutationFn: async (data: AgentFormData) => {
+            updateAgent({id:agentId,name:"Carlos",prompt:"Hola",integrations:[]})
+        },
+        onError: (error) => {
+            console.error('onError', error)
+        }
 
-export function AgentFormComponent({ onSubmit, defaultValues, error }: { onSubmit: ({ value }: { value: AgentFormData }) => void, defaultValues: AgentFormData, error: string | null }) {
+    })
+    const onSubmit = async ({ value }: { value: AgentFormData }) => {
+        mutate(value)
+    }
+    // Muestra un estado de carga mientras se obtiene el agente
+    if (isFetchingAgent) return <p>Cargando datos del agente...</p>; 
+
+    // Si defaultValues (data) aún no está cargado, puedes mostrar un loader o null
+    // para evitar errores si AgentFormComponent espera defaultValues definidos.
+    if (!data) return <p>Cargando formulario...</p>; 
+
+    return (
+        <AgentFormComponent isLoading={isPending} onSubmit={onSubmit} defaultValues={data} error={error?.message || null} />
+    )
+}
+export function AgentFormComponent({ onSubmit, defaultValues, error,isLoading }: {isLoading:boolean, onSubmit: any, defaultValues: AgentFormData, error: string | null }) {
     const form = useForm({
         defaultValues,
         onSubmit: ({ value }) => onSubmit({ value }),

@@ -1,5 +1,4 @@
-type Agent = {
-    id:string;
+type NewAgent = {
     name:string;
     type?:string;
     description?:string;
@@ -9,6 +8,20 @@ type Agent = {
     prompt:string;
     integrations?:string[];
 }
+type UpdateAgent = {
+    name:string;
+    type?:string;
+    description?:string;
+    skills?:string;
+    examples?:string;
+    output?:string;
+    prompt:string;
+    integrations?:string[];
+}
+type Agent = {   
+    id:string;
+} & NewAgent 
+
 type ApiAgent = {
     id:string;
     name:string;
