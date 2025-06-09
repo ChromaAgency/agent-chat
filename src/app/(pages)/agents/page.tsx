@@ -1,5 +1,4 @@
 import AgentForm from "@/components/agent-form";
-import PageSidebar from "@/components/page-sidebar";
 
 export default function Page() {
   return (

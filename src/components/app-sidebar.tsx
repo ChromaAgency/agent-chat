@@ -58,15 +58,15 @@ const data = {
       url: "/chats",
       icon: IconListDetails,
     },
-    // {
-    //   title: "Analytics",
-    //   url: "#",
-    //   icon: IconChartBar,
-    // },
+    {
+      title: "Channels",
+      url: "/channels",
+      icon:IconFolder,
+    },
     {
       title: "Agentes",
       url: "/agents",
-      icon: IconFolder,
+      icon: IconSettings,
     },
     {
       title: "Team",

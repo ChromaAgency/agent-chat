@@ -133,7 +133,7 @@ const defaultValues: AgentFormData = {
 export function NewAgentForm() {
     const queryClient = useQueryClient()
     const { mutate , error, isError, isPending } = useMutation({mutationFn: async (data: AgentFormData) => {
-           addNewAgent({name:data.name, prompt:data.prompt, integrations:["https://quantum-agents-api.quantumcorp.com.mx/api/tools/1/"]})
+           addNewAgent({name:data.name, prompt:data.prompt, integrations:[1]})
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['agents'] })
@@ -161,7 +161,7 @@ export function UpdateAgentForm({ agentId }: { agentId: string }) {
     const { mutate, isError, error, isPending } = useMutation({
         mutationKey: ['agents', agentId],
         mutationFn: async (data: AgentFormData) => {
-            return updateAgent({id:agentId,name:data.name,prompt:data.prompt,integrations:["http://localhost:8000/api/tools/1/"]})
+            return updateAgent({id:agentId,name:data.name,prompt:data.prompt,integrations:[1]})
         },
         onError: (error) => {
             console.error('onError', error)
