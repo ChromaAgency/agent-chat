@@ -13,6 +13,7 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconMessage,
   IconReport,
   IconSearch,
   IconSettings,
@@ -56,7 +57,7 @@ const data = {
     {
       title: "Chats",
       url: "/chats",
-      icon: IconListDetails,
+      icon: IconMessage,
     },
     {
       title: "Channels",

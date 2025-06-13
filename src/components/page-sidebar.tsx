@@ -17,14 +17,16 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link";
 import { getAgents } from "@/services/agentService";
-import { getChannels } from "@/services/channelsService"; // Import getChannels
-import { Channel as ServiceChannel } from "@/services/channel.d.ts"; // Import Channel type
+import { getChannels } from "@/services/channelsService";
+import { Channel as ServiceChannel } from "@/services/channel.d.ts";
+import { getThreads } from "@/services/threadsService.ts"; 
+import type { Thread as ServiceThread } from "@/services/thread.d.ts"; 
 import { queryClient } from "./agent-form";
 
 const pageRouteMap: Record<string, () => Promise<any[]>> = {
-    "chats": "/chats" as any, // Kept as is, assuming it's handled differently or placeholder
+    "chats": getThreads,
     "agents": getAgents,
-    "channels": getChannels, // Add channels route
+    "channels": getChannels,
 };
 
 type Agent = {
@@ -34,28 +36,24 @@ type Agent = {
     description: string;
 };
 
-// Define Channel type for this component, ideally import from services
-// Using ServiceChannel to avoid naming conflict if Channel was already defined locally
 type Channel = ServiceChannel;
 
-type Chat = {
-    id:string;
-    email:string;
-name:string;
-date:string;
-subject:string;
-teaser:string;
-}
+type Thread = ServiceThread;
+
 function usePageSidebar({page}:{page: string}) {
     
     return useQuery({
-        queryKey: [page], // query key (agents) indica si react query tiene que volver a hacer la funcion o no 
-        queryFn: async (s) => {
-            return await pageRouteMap[page]();
-        }
-    });
+        queryKey: [page], 
+        queryFn: async () => { 
+            if (typeof pageRouteMap[page] === 'function') {
+                return await pageRouteMap[page]();
+            }
+            console.warn(`No data fetching function found for page: ${page}`);
+            return [];
+        },
+        enabled: !!pageRouteMap[page] && typeof pageRouteMap[page] === 'function', 
 
-}
+})}
 export default function PageSidebarWrapper() {
 
     return <QueryClientProvider client={queryClient}>
@@ -63,9 +61,10 @@ export default function PageSidebarWrapper() {
     </QueryClientProvider>
 }
 const mapSidegroupContentByPage:Record<string, ({ data }: { data: any[]; }) => React.JSX.Element> = {
-    "chats": ChatsSideGroupContent,
+    "chats": ThreadsSideGroupContent, // Map "chats" route to ThreadsSideGroupContent
     "agents": AgentsSideGroupContent,
-    "channels": ChannelsSideGroupContent, // Add channels content renderer
+    "channels": ChannelsSideGroupContent,
+    // "threads": ThreadsSideGroupContent, // If you use 'threads' as key
 }
 
 function AgentsSideGroupContent({data}:{data: Agent[]}) {
@@ -88,7 +87,7 @@ function AgentsSideGroupContent({data}:{data: Agent[]}) {
   </SidebarGroupContent>
   
 }
-// New component to render channels list
+
 function ChannelsSideGroupContent({ data }: { data: Channel[] }) {
     return <SidebarGroupContent>
         {data.map((channel: Channel) => (
@@ -129,27 +128,51 @@ function ChatsSideGroupContent({data}:{data: Chat[]}) {
     ))}
   </SidebarGroupContent>
 }
+
+function ThreadsSideGroupContent({data}:{data: Thread[]}) {
+    if (!Array.isArray(data)) {
+        console.error("ThreadsSideGroupContent received non-array data:", data);
+        return <SidebarGroupContent><p>Error loading threads.</p></SidebarGroupContent>; 
+    }
+    return <SidebarGroupContent>
+    {data.map((thread:Thread) => (
+      <Link
+        href={`/chats/${thread.id}`} 
+        key={thread.id}
+        className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      >
+        <div className="flex w-full items-center gap-2">
+
+          <span>{thread.title || `Thread ${thread.id}`}</span> 
+
+          <span className="ml-auto text-xs">{thread.external_id}</span>
+        </div>
+      </Link>
+    ))}
+  </SidebarGroupContent>
+}
+
 function PageSidebar() {
     
     const pathname = usePathname()
-    const [,page, ] = pathname.split('/')
-    const {isLoading, data:items, isError } = usePageSidebar({page}); // Renamed data to items for clarity
+    const [,page, ] = pathname.split('/') 
+    const {isLoading, data:items, isError } = usePageSidebar({page});
 
-    if (isError || !pageRouteMap[page] || typeof pageRouteMap[page] !== 'function') { // Ensure it's a function
-        // If it's the 'chats' placeholder or any other non-function, don't render or handle differently
-        if (page === 'chats') {
-            // Potentially render ChatsSideGroupContent if data fetching for chats is handled elsewhere
-            // For now, returning null if it's not a function to avoid errors.
-            // You might need a separate useQuery or data fetching mechanism for 'chats' if it's dynamic.
-        }
-        return null;
+ 
+    if (isError) {
+        return <Sidebar collapsible="none" className="hidden md:flex"><SidebarContent><p>Error loading data.</p></SidebarContent></Sidebar>;
+    }
+    if (!pageRouteMap[page] || typeof pageRouteMap[page] !== 'function') {
+        return <Sidebar collapsible="none" className="hidden md:flex"><SidebarContent><p>No items to display for {page}.</p></SidebarContent></Sidebar>;
     }
     
+    const ContentRenderer = mapSidegroupContentByPage[page];
+
     return <Sidebar collapsible="none" className="hidden md:flex">
     <SidebarHeader className="gap-3.5 border-b p-4">
       <div className="flex w-full items-center justify-between">
         <div className="text-base font-medium text-foreground capitalize">
-           {page}
+           {page} 
         </div>
         <Label className="flex items-center gap-2 text-sm">
           <span>Unreads</span>
@@ -164,8 +187,8 @@ function PageSidebar() {
             <div className="flex flex-col items-center gap-2">
                 <span>Loading...</span>
             </div>
-        </SidebarGroupContent> :
-        mapSidegroupContentByPage[page] ? mapSidegroupContentByPage[page]({data: items || []}): null} {/* Pass items to the content renderer, ensure items is not undefined */}
+        </SidebarGroupContent> : 
+        ContentRenderer ? <ContentRenderer data={items || []} /> : <p>No content configured for {page}.</p>}
   </SidebarGroup>
     </SidebarContent>
   </Sidebar>

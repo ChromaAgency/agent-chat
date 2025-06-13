@@ -8,6 +8,9 @@ type NewAgent = {
     prompt:string;
     integrations?:string[];
 }
+type Agent = {   
+    id:string;
+} & NewAgent 
 type UpdateAgent = {
     name:string;
     type?:string;
@@ -18,11 +21,6 @@ type UpdateAgent = {
     prompt:string;
     integrations?:string[];
 }
-type Agent = {   
-    id:string;
-} & NewAgent 
-
-
 type NewApiAgent = {
     name:string;
     prompt:string;
