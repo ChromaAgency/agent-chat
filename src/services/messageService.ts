@@ -4,7 +4,7 @@ function mapMessage(apiMessage: ApiMessage): Message {
     return {
         id: apiMessage.id,
         text: apiMessage.content,
-        isUser: apiMessage.sender_id === 1,
+        userId: apiMessage.user,
         time: apiMessage.created_at,
     };
 }
@@ -12,14 +12,15 @@ function mapMessage(apiMessage: ApiMessage): Message {
 export async function getMessagesByThreadId(threadId: string | number): Promise<Message[]> {
     try {
         const response = await coreApiFetch(`/api/threads/${threadId}/messages/`, { method: 'GET' }); 
-        console.log(response);
         if (!response.ok) {
             const errorData = await response.text();
             console.error(`Error fetching messages for thread ${threadId}:`, response.status, errorData);
             throw new Error(`Error fetching messages for thread ${threadId}: ${response.status}`);
         }
         const apiMessages: ApiMessage[] = await response.json();
-        return apiMessages.map(mapMessage);
+        const messages = apiMessages.map(mapMessage)
+        messages.reverse();
+        return messages
 
     } catch (error) {
         console.error(`Failed to get messages for thread ${threadId}:`, error);

@@ -5,6 +5,7 @@ interface ApiMessage {
     content: string;
     created_at: string; 
     updated_at: string; 
+    user: number;
     url?: string; 
 }
 
@@ -20,7 +21,7 @@ interface ApiMessage {
 interface Message {
     id: string;
     text: string;
-    isUser: boolean;
+    userId: number;
     time: string;
   }
 

@@ -18,8 +18,8 @@ import {
 import Link from "next/link";
 import { getAgents } from "@/services/agentService";
 import { getChannels } from "@/services/channelsService";
-import { Channel as ServiceChannel } from "@/services/channel.d.ts";
-import { getThreads } from "@/services/threadsService.ts"; 
+import type { Channel as ServiceChannel } from "@/services/channel.d.ts";
+import { getThreads } from "@/services/threadsService"; 
 import type { Thread as ServiceThread } from "@/services/thread.d.ts"; 
 import { queryClient } from "./agent-form";
 
@@ -108,26 +108,7 @@ function ChannelsSideGroupContent({ data }: { data: Channel[] }) {
     </SidebarGroupContent>
 }
 
-function ChatsSideGroupContent({data}:{data: Chat[]}) {
-    return <SidebarGroupContent>
-    {data.map((mail:Chat) => (
-      <Link
-        href={`/chats/${mail.id}`}
-        key={mail.id}
-        className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-      >
-        <div className="flex w-full items-center gap-2">
-          <span>{mail.name}</span>{" "}
-          <span className="ml-auto text-xs">{mail.date}</span>
-        </div>
-        <span className="font-medium">{mail.subject}</span>
-        <span className="line-clamp-2 w-full whitespace-break-spaces text-xs">
-          {mail.teaser}
-        </span>
-      </Link>
-    ))}
-  </SidebarGroupContent>
-}
+
 
 function ThreadsSideGroupContent({data}:{data: Thread[]}) {
     if (!Array.isArray(data)) {
@@ -143,9 +124,9 @@ function ThreadsSideGroupContent({data}:{data: Thread[]}) {
       >
         <div className="flex w-full items-center gap-2">
 
-          <span>{thread.title || `Thread ${thread.id}`}</span> 
+          <span>{thread.name}</span> 
 
-          <span className="ml-auto text-xs">{thread.external_id}</span>
+          <span className="ml-auto text-xs">{thread.id}</span>
         </div>
       </Link>
     ))}
@@ -168,7 +149,7 @@ function PageSidebar() {
     
     const ContentRenderer = mapSidegroupContentByPage[page];
 
-    return <Sidebar collapsible="none" className="hidden md:flex">
+    return   <Sidebar collapsible="none" className="hidden md:flex">
     <SidebarHeader className="gap-3.5 border-b p-4">
       <div className="flex w-full items-center justify-between">
         <div className="text-base font-medium text-foreground capitalize">

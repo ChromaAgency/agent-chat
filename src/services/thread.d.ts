@@ -6,14 +6,17 @@ export interface Thread {
   // Potentially add last_message_summary or similar if available from API
 }
 
-export interface ApiThread {
-  id: string;
-} 
-export interface newApiThread {
-  name?: string;
+export type NewApiThread = {
+  title?: string;
+  external_id?: string;
 }
+export type ApiThread = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+} & NewApiThread
 
 export interface NewThread {
-  name?: string;
+  name: string;
   // other fields required to create a new thread
 }

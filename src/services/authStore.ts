@@ -1,14 +1,29 @@
 
 import {create, StoreApi, UseBoundStore} from 'zustand';
-import axios from 'axios';
 import { convertIsoStringDateToDate, convertTimestampToDate } from '@/utils';
 import { coreApiFetch } from './baseService';
+import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '@/components/agent-form';
+
+
+export function useUser(){
+    return useQuery({
+        queryKey: ['user'],
+        queryFn: async () => await getMyUser(),
+    }, queryClient)
+  
+}
+export async function getMyUser(){
+  
+        const res = await coreApiFetch('/api/users/me', { method: 'GET' });
+        const profile = await res.json();
+        return profile
+}
 
 type AuthStore = {accessToken: string, accessTokenExpires:Date, 
     initializeFromCookies:()=>void
     getAccessToken:()=>Promise<string|null>,
-    getProfile:()=>Promise<any|null>,
-    profile:any|null
+    
 }
 
   export async function clientRefreshAuth () {
@@ -24,19 +39,6 @@ type AuthStore = {accessToken: string, accessTokenExpires:Date,
 const useAuthStore:UseBoundStore<StoreApi<AuthStore>> = create<AuthStore>((set, get) => ({
   accessToken: '',
   accessTokenExpires: new Date(),
-  profile: null,
-  getProfile: async () => {
-  
-    const res = await coreApiFetch('/api/users/me', { method: 'GET' });
-    console.log({res})
-    const profile = await res.json();
-    console.log({profile})
-    set({
-        profile
-    })
-
-    return profile
-  },
   getAccessToken: async () => {
     const { accessToken, accessTokenExpires } = get();
     const currentTime = new Date();
@@ -49,7 +51,6 @@ const useAuthStore:UseBoundStore<StoreApi<AuthStore>> = create<AuthStore>((set, 
     try {
       const { newAccessToken, newExpires } = await clientRefreshAuth();
       set({ accessToken: newAccessToken, accessTokenExpires: newExpires });
-      await get().getProfile();
       return newAccessToken;
     } catch (error) {
       set({ accessToken: '', accessTokenExpires: new Date() });
@@ -71,7 +72,6 @@ const useAuthStore:UseBoundStore<StoreApi<AuthStore>> = create<AuthStore>((set, 
     if (accessToken && accessTokenExpires) {
         
         set({ accessToken, accessTokenExpires:  convertIsoStringDateToDate(decodeURIComponent(accessTokenExpires))});
-        await get().getProfile();
     }
   }
 }));

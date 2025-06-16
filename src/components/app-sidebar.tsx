@@ -27,7 +27,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import useAuthStore from "@/services/authStore"
+import useAuthStore, { useUser } from "@/services/authStore"
+import PageSidebar from "./page-sidebar"
 
 const data = {
 
@@ -144,11 +145,11 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const user = useAuthStore((state) => state.profile)
+  const {data:user} = useUser()
   
   return (
     
-    <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row ">
+    <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row">
            <Sidebar collapsible="none" {...props}>
              <SidebarHeader>
                <SidebarMenu>
@@ -174,6 +175,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                <NavUser user={user} />
              </SidebarFooter>
            </Sidebar>
+           <PageSidebar />
 
         
     </Sidebar>

@@ -1,6 +1,6 @@
 'use client'; // Esto es importante para usar hooks de React como useState
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, MouseEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { getMessagesByThreadId, addMessageToThread } from '@/services/messageService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/components/agent-form';
+import { useUser } from '@/services/authStore';
 
 interface ChatBubbleProps {
     message: string;
@@ -37,21 +38,24 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isUser, time }) => {
 
 interface MessageListProps {
     messages: Message[];
+    user: {id:number}
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, user }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+  
+
+
     return (
         <ScrollArea className="flex-1 p-4 h-full">
             {messages.map((msg) => (
-                <ChatBubble key={msg.id} message={msg.text} isUser={msg.isUser} time={msg.time} />
+                <ChatBubble key={msg.id} message={msg.text} isUser={msg.userId === user.id} time={msg.time} />
             ))}
             <div ref={messagesEndRef} />
         </ScrollArea>
@@ -64,7 +68,8 @@ export function ChatPage({ chatId }: { chatId: string }) {
         queryKey: ['messages', chatId],
         queryFn: ({ queryKey }) => getMessagesByThreadId(queryKey[1]),
     }, queryClient)
-
+    const inputRef = useRef<HTMLInputElement>(null);
+    const {data:user} = useUser()
 
     const {mutate} = useMutation({
         mutationKey: ['messages', chatId],
@@ -72,13 +77,15 @@ export function ChatPage({ chatId }: { chatId: string }) {
         onMutate: (newMessage) => {
             const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             setMessages((prevMessages) => [...prevMessages, 
-                {id:timestamp.toString(), text:newMessage.text, isUser:true, time:timestamp.toString()}]);
+                {id:timestamp.toString(), text:newMessage.text, userId:user?.id, time:timestamp.toString()}]);
+                if (inputRef.current) inputRef.current.value = '';
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['messages', chatId] })
         }
     },queryClient)
-    const handleSendMessage = (inputMessage:string) => {
+    const handleSendMessage = () => {
+        const inputMessage = inputRef.current?.value || '';
         if (inputMessage.trim() !== '') {
             const newMessage: NewMessage = {
                 text: inputMessage,
@@ -97,18 +104,19 @@ export function ChatPage({ chatId }: { chatId: string }) {
             <div className="flex-1 flex flex-col bg-white border-r border-gray-200">
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                 </div>
-                <MessageList messages={messages || []} />
+                <MessageList messages={messages || []} user={user} />
                 <div className="p-4 border-t border-gray-200 flex items-center space-x-2">
                     <Input
+                        ref={inputRef}
                         placeholder="Escribe tu mensaje aquí..."
-                        onKeyPress={(e) => {
+                        onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                                handleSendMessage(e.target.value);
+                                handleSendMessage();
                             }
                         }}
                         className="flex-1"
                     />
-                    <Button onClick={(e)=>handleSendMessage(e.target.value)}>Enviar</Button>
+                    <Button onClick={(e:MouseEvent<HTMLButtonElement>)=>handleSendMessage()}>Enviar</Button>
                 </div>
             </div>
 
