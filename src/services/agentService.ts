@@ -1,12 +1,12 @@
 import { mapAgent, mapApiAgent } from "./agentMapper"
+import useAuthStore from "./authStore";
 import { coreApiFetch } from "./baseService";
 
 export async function getIntegrations() {
     return 
 }
 export async function getAgents() : Promise<Agent[]> {
-
-    const agentsResp = await coreApiFetch('/api/agents',{method:'GET'})
+    const agentsResp = await coreApiFetch('/api/agents/',{method:'GET'})
     const agents:ApiResult<ApiAgent> = await agentsResp.json()
     const  agentResult = agents.results;
     return agentResult.map(mapAgent)

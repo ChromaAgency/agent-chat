@@ -1,7 +1,6 @@
 "use client"
-import { FieldApi, FormApi, ReactFormApi, useForm } from '@tanstack/react-form'
+import {  useForm } from '@tanstack/react-form'
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode, useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Checkbox } from './ui/checkbox'
 import { addNewAgent, updateAgent, getAgentById } from '@/services/agentService'; 
@@ -151,9 +150,9 @@ export function NewAgentForm() {
     )
 }
 export function UpdateAgentForm({ agentId }: { agentId: string }) {
-    const {data, isLoading: isFetchingAgent } = useQuery<AgentFormData, Error>({
+    const {data, isLoading: isFetchingAgent } = useQuery({
         queryKey: ['agents', agentId], 
-        queryFn: async () => {
+        queryFn: async ({}) => {
            return await getAgentById(agentId)
         },
     });

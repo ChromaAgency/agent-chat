@@ -39,7 +39,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-
+  if (!user) return null
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -50,8 +50,8 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user.avatar || ''} alt={user.name} />
+                <AvatarFallback className="rounded-lg">{user.name}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>

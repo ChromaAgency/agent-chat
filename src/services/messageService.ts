@@ -3,11 +3,9 @@ import { coreApiFetch } from "./baseService";
 function mapMessage(apiMessage: ApiMessage): Message {
     return {
         id: apiMessage.id,
-        threadId: apiMessage.thread_id,
-        senderId: apiMessage.sender_id,
-        content: apiMessage.content,
-        createdAt: apiMessage.created_at,
-        updatedAt: apiMessage.updated_at,
+        text: apiMessage.content,
+        isUser: apiMessage.sender_id === 1,
+        time: apiMessage.created_at,
     };
 }
 
@@ -31,13 +29,12 @@ export async function getMessagesByThreadId(threadId: string | number): Promise<
 
 export async function addMessageToThread(threadId: string | number, messageContent: string, senderId?: string | number): Promise<Message> {
     try {
-        const newMessagePayload: { thread_id: number | string; content: string; sender_id?: number | string } = {
-            thread_id: typeof threadId === 'string' ? threadId : Number(threadId),
+        const newMessagePayload: { thread: number | string; content: string; sender: number | string } = {
+            sender: typeof senderId === 'string' ? senderId : Number(senderId),
+            thread: typeof threadId === 'string' ? threadId : Number(threadId),
             content: messageContent,
         };
-        if (senderId) {
-            newMessagePayload.sender_id = senderId;
-        }
+
 
         const response = await coreApiFetch(`/api/messages/`, {
             method: 'POST',

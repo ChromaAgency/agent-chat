@@ -2,7 +2,6 @@ import { coreApiFetch } from "./baseService";
 import type { ApiThread, NewThread, Thread } from "./thread.d.ts"; 
 import { mapApiThread } from "./threadMapper";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const mapThread = (apiThread: any): Thread => ({
   id: apiThread.id,
@@ -12,28 +11,14 @@ const mapThread = (apiThread: any): Thread => ({
 });
 
 export const getThreads = async (): Promise<Thread[]> => {
-  try {
     const response = await coreApiFetch('/api/threads',{ method: 'GET' });
-    const threads:ApiThread = await response.json();
-
-    console.log(threads);
-    
-    return mapThread(response);
-  } catch (error) {
-    console.error("Failed to fetch threads:", error);
-
-    throw error;
-  }
+    const threads:ApiResult<ApiThread> = await response.json();
+    return threads.results.map(mapThread);
 };
 
 export const getThreadById = async (id: string): Promise<Thread | null> => {
-  try {
-    const response = await coreApiFetch<any>(`/api/threads/${id}/`,{ method: 'GET' });
+    const response = await coreApiFetch(`/api/threads/${id}/`,{ method: 'GET' });
     return response ? mapThread(response) : null;
-  } catch (error) {
-    console.error(`Failed to fetch thread with id ${id}:`, error);
-    throw error;
-  }
 };
 export async function addNewThread(thread:NewThread) : Promise<Thread> {
   const apiThread = mapApiThread(thread);

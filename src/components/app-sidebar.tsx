@@ -1,10 +1,7 @@
 "use client"
-
 import * as React from "react"
 import {
   IconCamera,
-  IconChartBar,
-  IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
@@ -12,48 +9,34 @@ import {
   IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconMessage,
   IconReport,
   IconSearch,
   IconSettings,
-  IconUsers,
 } from "@tabler/icons-react"
-import { Switch } from "@/components/ui/switch"
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
-import { Label } from "@/components/ui/label"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarInput,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
-  SidebarGroup,
-  SidebarGroupContent,
 } from "@/components/ui/sidebar"
-import PageSidebar from "./page-sidebar"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import useAuthStore from "@/services/authStore"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+
   navMain: [
-    {
-      title: "Dashboard",
-      url: "/",
-      icon: IconDashboard,
-    },
+    // {
+    //   title: "Dashboard",
+    //   url: "/dashboard",
+    //   icon: IconDashboard,
+    // },
     {
       title: "Chats",
       url: "/chats",
@@ -69,11 +52,11 @@ const data = {
       url: "/agents",
       icon: IconSettings,
     },
-    {
-      title: "Team",
-      url: "/team",
-      icon: IconUsers,
-    },
+    // {
+    //   title: "Team",
+    //   url: "/team",
+    //   icon: IconUsers,
+    // },
   ],
   navClouds: [
     {
@@ -161,7 +144,8 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-
+  const user = useAuthStore((state) => state.profile)
+  
   return (
     
     <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row ">
@@ -173,7 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                      asChild
                      className="data-[slot=sidebar-menu-button]:!p-1.5"
                    >
-                     <Link href="/">
+                     <Link href="/dashboard">
                        <IconInnerShadowTop className="!size-5" />
                        <span className="text-base font-semibold">Quantum Agents</span>
                      </Link>
@@ -187,7 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                <NavSecondary items={data.navSecondary} className="mt-auto" />
              </SidebarContent>
              <SidebarFooter>
-               <NavUser user={data.user} />
+               <NavUser user={user} />
              </SidebarFooter>
            </Sidebar>
 
