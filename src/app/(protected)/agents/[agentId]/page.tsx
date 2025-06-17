@@ -1,5 +1,8 @@
 import AgentForm from "@/components/agent-form";
-
+export const metadata = {
+  title: "Agent",
+  description: "Individual Agent",
+}
 export default async function Page({params}:{params:Promise<{agentId:string}>}) {
     const {agentId} = await params;
     return (

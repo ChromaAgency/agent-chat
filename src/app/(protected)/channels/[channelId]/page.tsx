@@ -1,5 +1,8 @@
 import ChannelForm from "@/components/channel-form";
-
+export const metadata = {
+  title: "Channel",
+  description: "Channel",
+}
 export default async function Page({params}:{params:Promise<{channelId:string}>}) {
     const {channelId} = await params;
     return (

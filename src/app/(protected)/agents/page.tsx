@@ -1,5 +1,9 @@
 import AgentForm from "@/components/agent-form";
 
+export const metadata = {
+  title: "Agents",
+  description: "Agents to use in a chat",
+}
 export default function Page() {
   return (
     <>

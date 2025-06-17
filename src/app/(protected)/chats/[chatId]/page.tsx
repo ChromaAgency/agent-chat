@@ -1,5 +1,10 @@
 import { ChatPage } from "./comp";
 
+export const metadata = {
+  title: "Chat",
+  description: "Chat with users"
+}
+
   export default async function HomePage({
     params,
   }: {
