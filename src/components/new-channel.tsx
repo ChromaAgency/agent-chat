@@ -36,25 +36,25 @@ export function NewChannel() {
         redirect_uri: "http://localhost:3000/channels"
         }
     })
-    const launchWhatsappSignup = () => {
+    // const launchWhatsappSignup = () => {
 
 
-        // Response callback
-        //   @ts-ignore
+    //     // Response callback
+    //     //   @ts-ignore
 
-        //   @ts-ignore
-        FB.login(fbLoginCallback, {
-            config_id: '1634382450564883', // configuration ID goes here
-            response_type: 'code', // must be set to 'code' for System User access token
-            override_default_response_type: true, // when true, any response types passed in the "response_type" will take precedence over the default types}
-            redirect_uri: window.location.href,
-            extras: {      setup: {},
-            featureType: 'whatsapp_business_app_onboarding',
-            sessionInfoVersion: '3'}
-        });
+    //     //   @ts-ignore
+    //     FB.login(fbLoginCallback, {
+    //         config_id: '1634382450564883', // configuration ID goes here
+    //         response_type: 'code', // must be set to 'code' for System User access token
+    //         override_default_response_type: true, // when true, any response types passed in the "response_type" will take precedence over the default types}
+    //         redirect_uri: window.location.href,
+    //         extras: {      setup: {},
+    //         featureType: 'whatsapp_business_app_onboarding',
+    //         sessionInfoVersion: '3'}
+    //     });
 
 
-    };
+    // };
     useEffect(() => {
         // SDK initialization
         //   @ts-ignore
@@ -118,12 +118,12 @@ export function NewChannel() {
     });
     return (
         <>  
-        {/* <Link target="_blank" href={`https://www.facebook.com/v23.0/dialog/oauth?${params.toString()}`}> */}
-            <Button onClick={launchWhatsappSignup}>
+        <Link target="_blank" href={`https://www.facebook.com/v23.0/dialog/oauth?${params.toString()}`}>
+            <Button >
                 <MessageCircle className="h-6 w-6" />
                 <span>WhatsApp</span>
             </Button>
-            {/* </Link> */}
+            </Link>
             <script async defer crossOrigin="anonymous"
   src="https://connect.facebook.net/en_US/sdk.js">
 </script>
