@@ -143,6 +143,7 @@ function PageSidebar() {
     if (isError) {
         return <Sidebar collapsible="none" className="hidden md:flex"><SidebarContent><p>Error loading data.</p></SidebarContent></Sidebar>;
     }
+    if (page === 'dashboard') return null;
     if (!pageRouteMap[page] || typeof pageRouteMap[page] !== 'function') {
         return <Sidebar collapsible="none" className="hidden md:flex"><SidebarContent><p>No items to display for {page}.</p></SidebarContent></Sidebar>;
     }

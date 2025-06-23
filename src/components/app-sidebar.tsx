@@ -2,6 +2,7 @@
 import * as React from "react"
 import {
   IconCamera,
+  IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
@@ -33,11 +34,11 @@ import PageSidebar from "./page-sidebar"
 const data = {
 
   navMain: [
-    // {
-    //   title: "Dashboard",
-    //   url: "/dashboard",
-    //   icon: IconDashboard,
-    // },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: IconDashboard,
+    },
     {
       title: "Chats",
       url: "/chats",
