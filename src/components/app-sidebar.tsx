@@ -150,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   
   return (
     
-    <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row">
+    <Sidebar collapsible="offcanvas" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row   ">
            <Sidebar collapsible="none" {...props}>
              <SidebarHeader>
                <SidebarMenu>

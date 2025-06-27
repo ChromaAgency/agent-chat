@@ -31,13 +31,13 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 }) => {
     // Determine avatar image and fallback text based on user or bot
     const avatarImage = isUser ? userAvatarSrc || "/avatars/user.png" : botAvatarSrc || "/avatars/bot.png";
-    const avatarFallback = isUser ? "YO" : "BOT";
+    const avatarFallback = isUser ? "U" : "B";
 
     return (
-        <div className={`flex mb-4 ${isUser ? 'justify-end' : 'justify-start'} items-start`}>
+        <div className={`flex mb-4  ${isUser ? 'justify-end' : 'justify-start'} items-start`}>
             {/* Bot Avatar (left) */}
             {!isUser && (
-                <Avatar className="h-8 w-8 mt-1 border border-gray-200">
+                <Avatar className="h-8 w-8 mt-1  border border-gray-200 mr-3 ">
                     <AvatarImage src={avatarImage} alt={avatarFallback} />
                     <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
@@ -62,7 +62,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 
             {/* User Avatar (right) */}
             {isUser && (
-                <Avatar className="h-8 w-8 mt-1 border border-gray-200">
+                <Avatar className="h-8 w-8 mt-1 border border-gray-200 ml-3 ">
                     <AvatarImage src={avatarImage} alt={avatarFallback} />
                     <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
@@ -101,7 +101,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, user, botAvatarSrc,
     }, [messages]);
 
     return (
-        <ScrollArea className="flex-1 p-4 h-full">
+        <ScrollArea className="flex-1 p-5 h-full">
             {messages.map((msg) => (
                 <ChatBubble
                     key={msg.id}
