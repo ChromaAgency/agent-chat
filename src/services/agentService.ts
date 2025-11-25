@@ -6,7 +6,7 @@ export async function getIntegrations() {
     return 
 }
 export async function getAgents() : Promise<Agent[]> {
-    const agentsResp = await coreApiFetch('/api/agents/',{method:'GET'})
+    const agentsResp = await coreApiFetch(`/api/agents/`,{method:'GET'})
     const agents:ApiResult<ApiAgent> = await agentsResp.json()
     const  agentResult = agents.results;
     return agentResult.map(mapAgent)
@@ -14,7 +14,7 @@ export async function getAgents() : Promise<Agent[]> {
     
 }
 export async function getAgentById(agentId: string) : Promise<Agent> {
-    const agentResp = await coreApiFetch(`/api/agents/${agentId}`, {method:'GET'});
+    const agentResp = await coreApiFetch(`/api/agents/${agentId}/`, {method:'GET'});
     if(agentResp && !agentResp.ok) {
         if (agentResp.status === 404) {
             throw new Error('Agente no encontrado');
@@ -27,7 +27,7 @@ export async function getAgentById(agentId: string) : Promise<Agent> {
 
 export async function addNewAgent(agent:NewAgent) : Promise<Agent> {
     const apiAgent = mapApiAgent(agent);
-    const agentsResp = await coreApiFetch('/api/agents/',{
+    const agentsResp = await coreApiFetch(`/api/agents/`,{
         method:'POST', 
         body:JSON.stringify(apiAgent),
         headers: {'Content-Type':'application/json'}})

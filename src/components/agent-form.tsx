@@ -2,36 +2,8 @@
 
 import * as React from "react"
 import { useForm } from '@tanstack/react-form'
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 
-// --- Mocked Services and Utilities (for standalone execution) ---
-
-// Mocked agentService functions
-// In a real application, these would be imported from your actual service file.
-const addNewAgent = async (data: any) => {
-    console.log("Mock: Adding new agent", data);
-    return new Promise(resolve => setTimeout(() => resolve({ id: Date.now().toString(), ...data }), 500));
-};
-const updateAgent = async (data: any) => {
-    console.log("Mock: Updating agent", data);
-    return new Promise(resolve => setTimeout(() => resolve({ id: data.id, ...data }), 500));
-};
-const getAgentById = async (id: string) => {
-    console.log("Mock: Getting agent by ID", id);
-    // Return some mock data for demonstration
-    return new Promise(resolve => setTimeout(() => resolve({
-        id: id,
-        name: `Agent ${id}`,
-        description: 'This is a mock agent description.',
-        role: 'Customer Support',
-        skills: 'Problem-solving, Communication',
-        examples: 'Handle refunds, Answer FAQs',
-        output: 'JSON format',
-        prompt: 'You are a helpful assistant.',
-        integrations: [1, 3], // Example pre-selected integrations
-        advancedMode: false,
-    }), 500));
-};
 
 // Basic `cn` utility (from Shadcn UI, combines clsx and tailwind-merge)
 // You would typically have this in `@/lib/utils.ts`
@@ -244,6 +216,7 @@ CommandItem.displayName = CommandPrimitive.Item.displayName
 
 // ui/popover.tsx
 import * as PopoverPrimitive from "@radix-ui/react-popover"
+import { useAddNewAgent, useAgent, useUpdateAgent } from "@/hooks/agents";
 
 const Popover = PopoverPrimitive.Root
 
@@ -317,7 +290,7 @@ function TanstackFormTextarea({ field, label, value }: TanstackFormTextareaProps
             onChange={e => {
                 console.log(e.target.value)
                 field.handleChange(e.target.value)}}
-            rows={4}
+            rows={50}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
     </>
@@ -510,7 +483,7 @@ function TanstackFormMultiSelectComboboxField({ form, name, label, options }: { 
 
 // --- Main Form Components (Modified) ---
 
-interface AgentFormData {
+export interface AgentFormData {
     name: string
     description: string
     role: string;
@@ -539,7 +512,9 @@ export default function AgentFormWrapper({
 }: { agentId?: null | string }) {
     return (
         <QueryClientProvider client={queryClient}>
+            <>
             {agentId ? <UpdateAgentForm agentId={agentId} /> : <NewAgentForm />}
+            </>
         </QueryClientProvider>
     )
 
@@ -558,18 +533,7 @@ const defaultValues: AgentFormData = {
 }
 export function NewAgentForm() {
     const queryClient = useQueryClient()
-    const { mutate , error, isError, isPending } = useMutation({mutationFn: async (data: AgentFormData) => {
-           // Ensure addNewAgent expects number[] for integrations
-           return addNewAgent({name:data.name, prompt:data.prompt, integrations:data.integrations})
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['agents'] })
-            console.log('onSuccess: New agent added successfully.')
-        },
-        onError: (error) => {
-            console.error('onError: Failed to add new agent', error)
-        }
-    })
+    const { mutate , error, isError, isPending } = useAddNewAgent()
     const onSubmit = async ({ value }: { value: AgentFormData }) => {
         mutate(value)
     }
@@ -578,29 +542,9 @@ export function NewAgentForm() {
     )
 }
 export function UpdateAgentForm({ agentId }: { agentId: string }) {
-    const {data, isLoading: isFetchingAgent } = useQuery({
-        queryKey: ['agents', agentId], 
-        queryFn: async () => { // Removed empty destructuring from here
-           return await getAgentById(agentId)
-        },
-    });
+    const {data, isLoading: isFetchingAgent } = useAgent(agentId)
 
-    const { mutate, isError, error, isPending } = useMutation({
-        mutationKey: ['agents', agentId],
-        mutationFn: async (data: AgentFormData) => {
-            // Ensure updateAgent expects number[] for integrations
-            return updateAgent({id:agentId,name:data.name,prompt:data.prompt,integrations:data.integrations})
-        },
-        onError: (error) => {
-            console.error('onError: Failed to update agent', error)
-        },
-        onSuccess: (data, variables, context) => {
-            queryClient.invalidateQueries({ queryKey: ['agents'] })
-            queryClient.invalidateQueries({ queryKey: ['agents', data.id] })
-            console.log('onSuccess: Agent updated successfully.')
-        },
-
-    })
+    const { mutate, isError, error, isPending } = useUpdateAgent(agentId)
     const onSubmit = async ({ value }: { value: AgentFormData }) => {
         mutate(value)
     }
@@ -612,14 +556,15 @@ export function UpdateAgentForm({ agentId }: { agentId: string }) {
     if (!data) return <p>Cargando formulario...</p>; 
 
     return (
+        // @ts-ignore
         <AgentFormComponent isLoading={isPending} onSubmit={onSubmit} defaultValues={data as AgentFormData} error={error?.message || null} />
     )
 }
 export function AgentFormComponent({ onSubmit, defaultValues, error,isLoading }: {isLoading:boolean, onSubmit: any, defaultValues: AgentFormData, error: string | null }) {
+    
     const form = useForm({
-        defaultValues,
+        defaultValues:{...defaultValues, advancedMode:true},
         onSubmit: ({ value }) => onSubmit({ value }),
-
     })
 
     return (
@@ -629,7 +574,7 @@ export function AgentFormComponent({ onSubmit, defaultValues, error,isLoading }:
                 e.stopPropagation()
                 form.handleSubmit()
             }}
-            className="space-y-6 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md"
+            className="space-y-6  mx-auto p-6 bg-white rounded-lg shadow-md"
         >
             {error && (
                 <div className="bg-red-50 text-red-500 p-3 rounded-md">{error}</div>
@@ -640,9 +585,9 @@ export function AgentFormComponent({ onSubmit, defaultValues, error,isLoading }:
             <div className="space-y-2">
                 <TanstackFormCheckboxField label={labels["advancedMode"]} name='advancedMode' form={form} />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
                 <TanstackTextareaField label={labels["description"]} name='description' form={form} />
-            </div>
+            </div> */}
             <form.Subscribe
                 selector={(state) => state.values.advancedMode}>
                 {(advancedMode) => (
