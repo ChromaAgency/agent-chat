@@ -36,7 +36,7 @@ export async function GET(request: Request) {
             grant_type: 'authorization_code',
             client_id: encodeURIComponent(clientID),
             client_secret: encodeURIComponent(clientSecret),
-            redirect_uri: 'http://localhost:3000/api/oauth/callback/core',
+            redirect_uri: process.env.NEXT_PUBLIC_CORE_REDIRECT_URI || 'http://localhost:3000/oauth/callback',
             code_verifier: '38abd03107ec4718ffe86cfe0c89a8afb5c4fba53d623eb3a5d67cba03838a9c'
         })
     });
