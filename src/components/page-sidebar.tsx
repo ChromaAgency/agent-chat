@@ -58,6 +58,7 @@ export default function PageSidebarWrapper() {
 
     return <QueryClientProvider client={queryClient}>
         <PageSidebar />
+        
     </QueryClientProvider>
 }
 const mapSidegroupContentByPage:Record<string, ({ data }: { data: any[]; }) => React.JSX.Element> = {

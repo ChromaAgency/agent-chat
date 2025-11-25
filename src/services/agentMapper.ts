@@ -11,6 +11,12 @@ export function mapApiAgent(agent:NewAgent):NewApiAgent {
     return {
         name:agent.name,
         prompt:agent.prompt,
-        tools:agent.integrations || [],
+        translate_to_user_language:true,
+        tools:[
+                1,
+                6,
+                7,
+                9
+            ]
     }
 }

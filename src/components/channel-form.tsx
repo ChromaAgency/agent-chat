@@ -87,6 +87,7 @@ export default function ChannelFormWrapper({ channelId }: { channelId?: string }
     return (
         <QueryClientProvider client={queryClient}>
             {channelId ? <UpdateChannelForm channelId={channelId} /> : <NewChannelForm />}
+            
         </QueryClientProvider>
     );
 }
