@@ -1,5 +1,6 @@
 import { mapChannel, mapApiChannel } from "./channelMapper"; // Assuming you'll create these mappers
 import { coreApiFetch } from "./baseService";
+import { ApiChannel, Channel, NewChannel, UpdateChannel } from "./channel";
 
 export async function getChannels(): Promise<Channel[]> {
     const channelsResp = await coreApiFetch('/api/channels', { method: 'GET' });

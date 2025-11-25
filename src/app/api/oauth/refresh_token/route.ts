@@ -1,29 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { setAuthCookies } from '@/utils.server';
+import { getNewRefreshToken } from './utils';
 
-export async function getNewRefreshToken(refreshToken: string) {
 
-  const response = await fetch('http://localhost:8000/o/token/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      client_id: encodeURIComponent(process.env.NEXT_PUBLIC_CORE_CLIENT_ID || ''),
-      client_secret: encodeURIComponent(process.env.CORE_API_CLIENT_SECRET || ''),
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to refresh token' + await response.text());
-  }
-
-  const data = await response.json();
-  return data;
-}
 export async function POST() {
   const cookieStore = await cookies();
   try {

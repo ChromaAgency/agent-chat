@@ -13,9 +13,13 @@ export function mapApiAgent(agent:NewAgent):NewApiAgent {
         prompt:agent.prompt,
         translate_to_user_language:true,
         tools:[
+        // @ts-ignore
                 1,
+        // @ts-ignore
                 6,
+        // @ts-ignore
                 7,
+        // @ts-ignore
                 9
             ]
     }

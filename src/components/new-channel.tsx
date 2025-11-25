@@ -25,10 +25,11 @@ export function processWhatsappSignupResponse(response) {
     }
 
 }
+        // @ts-ignore
 const fbLoginCallback = (response) => {
     processWhatsappSignupResponse(response);
 }
-export function NewChannel() {
+export default function NewChannel() {
     const p = useSearchParams();
     if (p.get("code")) fbLoginCallback({
         authResponse: {

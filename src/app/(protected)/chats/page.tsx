@@ -1,7 +1,8 @@
 
-import { NewChannel } from '@/components/new-channel';
+import dynamic from 'next/dynamic';
 import React from 'react';
 
+const NewChannel = dynamic(()=>import('@/components/new-channel'))
 export const metadata = {
   title: 'Chats',
   description: 'Chats from the users',

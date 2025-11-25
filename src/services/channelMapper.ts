@@ -1,3 +1,5 @@
+import { ApiChannel, Channel, NewChannel, UpdateChannel } from "./channel";
+
 // Basic example, adjust according to your exact API and frontend needs
 export function mapChannel(apiChannel: ApiChannel): Channel {
     return {

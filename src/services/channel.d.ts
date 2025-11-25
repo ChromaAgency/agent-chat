@@ -1,4 +1,4 @@
-interface Channel {
+export interface Channel {
     id: string;
     url: string;
     name: string;
@@ -11,7 +11,7 @@ interface Channel {
     access_token: string;
 }
 
-interface ApiChannel {
+export interface ApiChannel {
     id: string;
     url: string;
     name: string;
@@ -24,7 +24,7 @@ interface ApiChannel {
     access_token: string;
 }
 
-interface NewChannel {
+export interface NewChannel {
     name: string;
     channel_type: string;
     channel_integration: string;
@@ -34,6 +34,6 @@ interface NewChannel {
     access_token: string;
 }
 
-interface UpdateChannel extends NewChannel {
+export interface UpdateChannel extends NewChannel {
     id: string;
 }

@@ -1,5 +1,7 @@
-import { NewChannel } from "@/components/new-channel"
+import dynamic from "next/dynamic"
+import { Suspense } from "react"
 
+const NewChannel = dynamic(() => import("@/components/new-channel"))
 export const metadata = {
     title: "Channels",
     description: "Channels to chat",
@@ -11,7 +13,9 @@ export default function Page() {
                 <div className="@container/main flex flex-1 flex-col gap-2">
                     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 ">
                         <div className="px-4 lg:px-6 flex items-center justify-center">     
-                        <NewChannel/>
+                            <Suspense>
+                                <NewChannel/>
+                            </Suspense>
                         </div>              
                     </div>
                 </div>

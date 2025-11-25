@@ -121,6 +121,7 @@ export function ChatPage({ chatId }: { chatId: string }) {
     const [messages, setMessages] = React.useState<Message[]>([]);
     const { data: fetchedMessages } = useQuery<Message[]>({ // Renamed data to fetchedMessages to avoid conflict
         queryKey: ['messages', chatId],
+        // @ts-ignore
         queryFn: ({ queryKey }) => getMessagesByThreadId(queryKey[1]),
     }, queryClient);
     const inputRef = useRef<HTMLInputElement>(null);

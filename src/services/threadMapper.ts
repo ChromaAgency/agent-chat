@@ -8,7 +8,7 @@ export function mapThread(thread: ApiThread): Thread {
         updated_at: thread.updated_at,
     };
 }
-export function mapApiThread(thread: NewThread): NewApiThread {
+export function mapApiThread(thread: NewThread | Thread): NewApiThread {
     return {
         title: thread.name,
         external_id: thread.name,
